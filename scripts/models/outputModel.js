@@ -16,6 +16,7 @@
   output.requestBikeStations = function(callback) {
     $.getJSON('http://biketownpdx.socialbicycles.com/opendata/station_information.json')
     .done(function(responseData, message, xhr) {
+      console.log('work');
       output.bikeStationsArr = responseData.data.stations; // the array of bike station objects
 
       // Copy the bike station array of objects with .map() and add a distance property
@@ -27,12 +28,25 @@
         rtnObj.lon = curObj.lon;
         rtnObj.distanceFromUser = null;
 
-        return rtnObj;
+        output.loadBikeStands(rtnObj);
       });
     })
     .done(callback)
     .fail(function(){
       alert('Biketown API request failed!');
+    });
+  };
+  var geocoder = new google.maps.Geocoder();
+
+  output.loadBikeStands = function (rtnObj) {
+    var address = rtnObj.address;
+    geocoder.geocode({'address': address}, function(results, status) {
+      if (status === 'OK') {
+        var marker = new google.maps.Marker({
+          map: map,
+          position: results[0].geometry.location
+        });
+      };
     });
   };
 
